@@ -1,7 +1,6 @@
 #!/usr/bin/env swift
 
 import Foundation
-import RegexBuilder
 
 let start = Date()
 let input = try String(contentsOfFile: #file.replacingOccurrences(of: ".swift", with: ".input"))
