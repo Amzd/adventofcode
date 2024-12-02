@@ -17,6 +17,7 @@ func getFirstInvalidOffsets(_ numbers: [Int]) -> [Int] {
     }
     return [firstNotDecreasing, firstNotIncreasing].compactMap(\.?.offset)
 }
+
 for line in input.split(separator: "\n") {
     let numbers = line.split(separator: " ").map(String.init).compactMap(Int.init)
     let firstInvalidOffsets = getFirstInvalidOffsets(numbers)
@@ -28,7 +29,6 @@ for line in input.split(separator: "\n") {
     } else if firstInvalidOffsets.map({ getFirstInvalidOffsets(numbers.removing(at: $0)) }).contains(where: { $0.count < 2 }){
         result2 += 1
     }
-
 }
 
 print("part1", result1)
