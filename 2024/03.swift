@@ -1,42 +1,41 @@
 #!/usr/bin/env swift
 
 import Foundation
-import RegexBuilder
 
 let start = Date()
 let input = try String(contentsOfFile: #file.replacingOccurrences(of: ".swift", with: ".input"))
-var result1 = 0
-var result2 = 0
 
-let x = Reference(Int.self)
-let y = Reference(Int.self)
+func parse(withConditionals: Bool) -> Int {
+    var result = 0
+    let scanner = Scanner(string: input)
+    while !scanner.isAtEnd {
+        let enabledString = withConditionals ? scanner.scanUpToString("don't()") ?? "" : input
+        let enabledScanner = Scanner(string: enabledString)
+        while !enabledScanner.isAtEnd {
+            _ = enabledScanner.scanUpToString("mul(")
+            if let _ = enabledScanner.scanString("mul(") {
+                if let x = enabledScanner.scanInt(),
+                    let _ = enabledScanner.scanString(","),
+                    let y = enabledScanner.scanInt(),
+                    let _ = enabledScanner.scanString(")") {
+                    result += x * y
+                }
+            } else {
+                break
+            }
+        }
 
-var enabled = true
-for match in input.matches(of: {
-    ChoiceOf {
-        "do()"
-        "don't()"
-        Local {
-            "mul("
-            Capture(OneOrMore(.digit), as: x, transform: { Int($0)! })
-            ","
-            Capture(OneOrMore(.digit), as: y, transform: { Int($0)! })
-            ")"
+        if withConditionals {
+            _ = scanner.scanString("don't()")
+            _ = scanner.scanUpToString("do()")
+            _ = scanner.scanString("do()")
+        } else {
+            break
         }
     }
-}) {
-    if match.0 == "do()" {
-        enabled = true
-    } else if match.0 == "don't()" {
-        enabled = false
-    } else if enabled {
-        result1 += match[x] * match[y]
-        result2 += match[x] * match[y]
-    } else {
-        result1 += match[x] * match[y]
-    }
+    return result
 }
 
-print("part1", result1)
-print("part2", result2)
+print("part1", parse(withConditionals: false))
+print("part2", parse(withConditionals: true))
 print("elapsed time in seconds:", -start.timeIntervalSinceNow)
