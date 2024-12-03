@@ -8,13 +8,14 @@ var result1 = 0
 var result2 = 0
 
 func getFirstInvalidOffsets(_ numbers: [Int]) -> [Int] {
-    let firstNotDecreasing = numbers.enumerated().first { offset, number in
-        numbers.indices.contains(offset + 1) && !(1...3 ~= number - numbers[offset + 1])
+    let allpairs = Array(zip(numbers.dropLast(), numbers.dropFirst()))
+    let firstNotDecreasing = allpairs.firstIndex { number, next in
+        !(1...3 ~= number - next)
     }
-    let firstNotIncreasing = numbers.enumerated().first { offset, number in
-        numbers.indices.contains(offset + 1) && !(1...3 ~= -(number - numbers[offset + 1]))
+    let firstNotIncreasing = allpairs.firstIndex { number, next in
+        !(1...3 ~= -(number - next))
     }
-    return [firstNotDecreasing, firstNotIncreasing].compactMap(\.?.offset)
+    return [firstNotDecreasing, firstNotIncreasing].compactMap(\.self)
 }
 
 for line in input.split(separator: "\n") {
