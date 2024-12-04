@@ -39,18 +39,12 @@ for (y, row) in input2d.enumerated() {
     }
 }
 
-
 extension Array where Element == [Character] {
     subscript(x: Index, y: Index) -> Character? {
-        if self.indices.contains(y), self[y].indices.contains(x) {
-            return self[y][x]
-        }
-        return nil
+        self.indices.contains(y) && self[y].indices.contains(x) ? self[y][x] : nil
     }
 }
-
 
 print("part1", result1)
 print("part2", result2)
 print("elapsed time in seconds:", -start.timeIntervalSinceNow)
-
