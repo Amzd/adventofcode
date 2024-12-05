@@ -12,7 +12,7 @@ let rules = split[0].split(separator: "\n").map {
     let xy = $0.split(separator: "|")
     return (x: Int(xy[0])!,y: Int(xy[1])!)
 }
-let pagesBefore = Dictionary(grouping: rules, by: { $0.x }).mapValues { $0.map(\.y) }
+let pagesBefore = Dictionary(grouping: rules, by: { $0.x }).mapValues { Set($0.map(\.y)) }
 
 update: for update in split[1].split(separator: "\n") {
     let pages = update.split(separator: ",").map(String.init).compactMap(Int.init)
