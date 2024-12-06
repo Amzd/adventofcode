@@ -36,16 +36,11 @@ while let next = input2d[cursor.next.position] {
     }
 }
 
-enum Facing: String {
+enum Facing: Int {
     case up, right, down, left
 
     var rotated: Self {
-        switch self {
-        case .up: .right
-        case .right: .down
-        case .down: .left
-        case .left: .up
-        }
+        .init(rawValue: self.rawValue + 1) ?? .up
     }
 
     var mod: (x: Int, y: Int) {
