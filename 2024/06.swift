@@ -36,14 +36,16 @@ while let next = input2d[cursor.next.position] {
     }
 }
 
-enum Facing: String, CaseIterable {
+enum Facing: String {
     case up, right, down, left
 
     var rotated: Self {
-        if let index = Self.allCases.firstIndex(of: self), index + 1 < Self.allCases.endIndex {
-            return Self.allCases[index + 1]
+        switch self {
+        case .up: .right
+        case .right: .down
+        case .down: .left
+        case .left: .up
         }
-        return Self.allCases.first!
     }
 
     var mod: (x: Int, y: Int) {
