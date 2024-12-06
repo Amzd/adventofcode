@@ -19,9 +19,9 @@ while let next = input2d[cursor.next.position] {
             var loopedCursor = cursor
             var loopedVisitedCorners = Set<Cursor>()
             var loopedInput2d = input2d
-            loopedInput2d[cursor.next.position.y][cursor.next.position.x] = "O"
+            loopedInput2d[cursor.next.position.y][cursor.next.position.x] = "#"
             o: while let next = loopedInput2d[loopedCursor.next.position] {
-                if next == "#" || next == "O" {
+                if next == "#" {
                     if !loopedVisitedCorners.insert(loopedCursor).inserted {
                         result2 += 1
                         break o
