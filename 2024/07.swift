@@ -11,8 +11,8 @@ for line in input.split(separator: "\n") {
     let split = line.split(separator: ":")
     let result = Double(split[0])!
     let numbers = split[1].split(separator: " ").compactMap { Double($0) }
-    var possibleResults: Set<Result> = [Result(value: 0)]
-    for number in numbers {
+    var possibleResults: Set<Result> = [Result(value: numbers[0])]
+    for number in numbers.dropFirst() {
         var newPossibleResults = Set<Result>()
         for p in possibleResults {
             newPossibleResults.insert(.init(neededConcat: p.neededConcat, value: p.value * number))
