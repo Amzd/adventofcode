@@ -22,10 +22,9 @@ for (y, line) in input.split(separator: "\n").enumerated() {
 var antinodes: Set<Location> = []
 var reasonantAntinodes: Set<Location> = []
 
-for locations in antennas.values {
-    var otherLocations = locations
-    while let location = otherLocations.popFirst() {
-        for otherLocation in otherLocations {
+for var locations in antennas.values {
+    while let location = locations.popFirst() {
+        for otherLocation in locations {
             let mod = location - otherLocation
             assert(mod.x != 0 && mod.y != 0, "stride doesn't work with 0")
             for (x,y) in zip(stride(from: location.x, in: 0...maxX, by: mod.x), stride(from: location.y, in: 0...maxY, by: mod.y)) {
