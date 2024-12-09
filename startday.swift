@@ -11,6 +11,7 @@ let swiftFile = "\(year)/\(dayString).swift"
 let token = ProcessInfo.processInfo.environment["AoC_token"] ?? { fatalError("set token in env as AoC_token") }()
 guard token.count > 0 else { fatalError("missing token") }
 
+print("Downloading input file")
 var request = try HTTPClient.Request(url: "https://adventofcode.com/\(year)/day/\(day)/input")
 request.headers.add(name: "Cookie", value: "session=\(token)")
 let delegate = try FileDownloadDelegate(path: inputFile)
@@ -18,8 +19,9 @@ let result = try await HTTPClient.shared.execute(request: request, delegate: del
 
 let contents = try String(contentsOfFile: inputFile)
 let fm = FileManager.default
-if contents.split(separator: "\n").count < 5 {
+if result.totalBytes == nil {
     try? fm.removeItem(atPath: inputFile)
+    print("Failed to download file")
     fatalError(contents)
 }
 
