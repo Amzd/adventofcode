@@ -51,23 +51,14 @@ print("Running `watch \(swiftFile)`")
 let watch = Process()
 watch.executableURL = URL(fileURLWithPath: "/usr/bin/env")
 watch.arguments = ["zsh", "-c", "watch \(swiftFile)"]
+signal(SIGINT, { signal in watch.terminate() })
 try watch.run()
-await watch.waitUntilExit()
+watch.waitUntilExit()
 
 extension Collection {
     // Returns the element at the specified index if it is within bounds, otherwise nil.
     subscript(safe index: Index) -> Element? {
         indices.contains(index) ? self[index] : nil
-    }
-}
-
-extension Process {
-    func waitUntilExitAsync() async {
-        await withCheckedContinuation { c in
-            self.terminationHandler = { _ in
-                c.resume()
-            }
-        }
     }
 }
 
