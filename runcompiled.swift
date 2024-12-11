@@ -17,13 +17,15 @@ compile.arguments = ["swiftc", file, "-o", executable, "-O", "-gnone", "-whole-m
 try compile.run()
 compile.waitUntilExit()
 
+
+let jit = Process() // needs to be outside if for the signal C function
 if showJIT {
     print("--- JIT:")
 
-    let run = Process()
-    run.executableURL = URL(fileURLWithPath: file)
-    try? run.run()
-    run.waitUntilExit()
+    jit.executableURL = URL(fileURLWithPath: file)
+    try? jit.run()
+    signal(SIGINT, { _ in jit.terminate() })
+    jit.waitUntilExit()
 }
 
 print("--- compiled:")
@@ -31,6 +33,7 @@ print("--- compiled:")
 let compiled = Process()
 compiled.executableURL = URL(fileURLWithPath: executable)
 try? compiled.run()
+signal(SIGINT, { _ in compiled.terminate() })
 compiled.waitUntilExit()
 
 try? fm.removeItem(atPath: executable)
