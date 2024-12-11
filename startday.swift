@@ -47,7 +47,7 @@ openEditor.executableURL = URL(fileURLWithPath: "/usr/bin/env")
 openEditor.arguments = [openCommand, swiftFile]
 try openEditor.run()
 
-print("Running `watch \(swiftFile)`")
+print("Running `watch \(swiftFile)`") // See https://github.com/Amzd/dotfiles/blob/main/.zshrc.d/aliases.zsh or the macos branch
 let watch = Process()
 watch.executableURL = URL(fileURLWithPath: "/usr/bin/env")
 watch.arguments = ["zsh", "-c", "watch \(swiftFile)"]
