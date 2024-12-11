@@ -4,7 +4,7 @@ import Foundation
 
 let start = Date()
 let input = try String(contentsOfFile: #file.replacingOccurrences(of: ".swift", with: ".input"))
-let numbers = input.replacingOccurrences(of: "\n", with: "").split(separator: " ").map({ Double($0)! })
+let numbers = input.split(whereSeparator: " \n".contains).map({ Double($0)! })
 var numberCounts = Dictionary(grouping: numbers, by: \.self).mapValues(\.count)
 
 for _ in 0..<25 {
