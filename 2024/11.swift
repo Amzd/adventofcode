@@ -10,7 +10,6 @@ for number in input.split(separator: "\n")[0].split(separator: " ").map({ Double
     numberCounts[number, default: 0] += 1
 }
 
-
 for _ in 0..<25 {
     var newCounts: [Double: Int] = [:]
     for (number, count) in numberCounts where count > 0 {
