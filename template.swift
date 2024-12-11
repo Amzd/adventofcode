@@ -9,6 +9,6 @@ var result2 = 0
 
 // TODO: Good luck
 
-print("part1", result1)
-print("part2", result2)
+print("part1", result1, result1 == 0)
+print("part2", result2, result2 == 0)
 print("elapsed time in seconds:", -start.timeIntervalSinceNow)
