@@ -26,6 +26,7 @@ if showJIT {
     try? jit.run()
     signal(SIGINT, { _ in jit.terminate() })
     jit.waitUntilExit()
+    if jit.terminationReason != .exit { print(jit.terminationReason) }
 }
 
 print("--- compiled:")
@@ -35,6 +36,7 @@ compiled.executableURL = URL(fileURLWithPath: executable)
 try? compiled.run()
 signal(SIGINT, { _ in compiled.terminate() })
 compiled.waitUntilExit()
+if compiled.terminationReason != .exit { print(compiled.terminationReason) }
 
 try? fm.removeItem(atPath: executable)
 
