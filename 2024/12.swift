@@ -8,48 +8,45 @@ var result1 = 0
 var result2 = 0
 
 let input2d: [[Character]] = input.split(separator: "\n").map { $0.map { $0 }}
-
-result1 = regions(from: input2d).map { $0.area * $0.perimeter }.reduce(0, +)
-
-let rows2x = input2d.map { zip($0, $0).flatMap { [$0, $1] }}
-let input2d2x = zip(rows2x, rows2x).flatMap { [$0, $1] }
-
-for region in regions(from: input2d2x) {
-    let corners = region.insideLocations.filter {
-        switch $0.allDirections.filter(region.insideLocations.contains).count {
-        case 2: true
-        case 4: $0.allDiagonals.filter(region.insideLocations.contains).count == 3
-        default: false
+var regions: [Region] = []
+for (y, row) in input2d.enumerated() {
+    for (x, char) in row.enumerated() {
+        let location = Location(x: x, y: y)
+        guard !regions.contains(where: { $0.type == char && $0.insideLocations.contains(location) }) else { continue }
+        var newRegion = Region(type: char, insideLocations: [location])
+        var toCheck = location.allDirections
+        while !toCheck.isEmpty {
+            var newToCheck: [Location] = []
+            for toCheck in toCheck {
+                if input2d[toCheck] == char {
+                    if newRegion.insideLocations.insert(toCheck).inserted {
+                        newToCheck.append(contentsOf: toCheck.allDirections)
+                    }
+                } else {
+                    newRegion.outsideChecks.append(toCheck)
+                }
+            }
+            toCheck = newToCheck.filter { !newRegion.insideLocations.contains($0) }
         }
+        regions.append(newRegion)
     }
-    result2 += region.area / 4 * corners.count
 }
 
-func regions(from input2d: [[Character]]) -> [Region] {
-    var regions: [Region] = []
-    for (y, row) in input2d.enumerated() {
-        for (x, char) in row.enumerated() {
-            let location = Location(x: x, y: y)
-            guard !regions.contains(where: { $0.type == char && $0.insideLocations.contains(location) }) else { continue }
-            var newRegion = Region(type: char, insideLocations: [location])
-            var toCheck = location.allDirections
-            while !toCheck.isEmpty {
-                var newToCheck: [Location] = []
-                for toCheck in toCheck {
-                    if input2d[toCheck] == char {
-                        if newRegion.insideLocations.insert(toCheck).inserted {
-                            newToCheck.append(contentsOf: toCheck.allDirections)
-                        }
-                    } else {
-                        newRegion.outsideChecks.append(toCheck)
-                    }
-                }
-                toCheck = newToCheck.filter { !newRegion.insideLocations.contains($0) }
+result1 = regions.map { $0.area * $0.perimeter }.reduce(0, +)
+
+for region in regions {
+    let corners = region.insideLocations.map {
+        let outsideCorners = zip($0.allDirections, $0.allDirections.dropFirst() + [$0.allDirections[0]]).map { [$0, $1] }
+        let allCorners = zip(outsideCorners, $0.allDiagonals)
+        return allCorners.filter { directions, diagonal in
+            return switch directions.filter(region.insideLocations.contains).count {
+            case 0: true
+            case 2: !region.insideLocations.contains(diagonal)
+            default: false
             }
-            regions.append(newRegion)
-        }
-    }
-    return regions
+        }.count
+    }.reduce(0, +)
+    result2 += region.area * corners
 }
 
 struct Region: Hashable {
