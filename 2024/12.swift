@@ -4,15 +4,14 @@ import Foundation
 
 let start = Date()
 let input = try String(contentsOfFile: #file.replacingOccurrences(of: ".swift", with: ".input"))
-var result1 = 0
-var result2 = 0
 
 let input2d: [[Character]] = input.split(separator: "\n").map { $0.map { $0 }}
 var regions: [Region] = []
+var handled: Set<Location> = []
 for (y, row) in input2d.enumerated() {
     for (x, char) in row.enumerated() {
         let location = Location(x: x, y: y)
-        guard !regions.contains(where: { $0.type == char && $0.insideLocations.contains(location) }) else { continue }
+        guard !handled.contains(location) else { continue }
         var newRegion = Region(type: char, insideLocations: [location])
         var toCheck = location.allDirections
         while !toCheck.isEmpty {
@@ -20,10 +19,11 @@ for (y, row) in input2d.enumerated() {
             for toCheck in toCheck {
                 if input2d[toCheck] == char {
                     if newRegion.insideLocations.insert(toCheck).inserted {
+                        handled.insert(toCheck)
                         newToCheck.append(contentsOf: toCheck.allDirections)
                     }
                 } else {
-                    newRegion.outsideChecks.append(toCheck)
+                    newRegion.perimeter += 1
                 }
             }
             toCheck = newToCheck.filter { !newRegion.insideLocations.contains($0) }
@@ -32,12 +32,11 @@ for (y, row) in input2d.enumerated() {
     }
 }
 
-result1 = regions.map { $0.area * $0.perimeter }.reduce(0, +)
-
-for region in regions {
-    let corners = region.insideLocations.map {
-        let outsideCorners = zip($0.allDirections, $0.allDirections.dropFirst() + [$0.allDirections[0]]).map { [$0, $1] }
-        let allCorners = zip(outsideCorners, $0.allDiagonals)
+let result1 = regions.map { $0.area * $0.perimeter }.reduce(0, +)
+let result2 = regions.map { region in
+    region.area * region.insideLocations.map {
+        // I'd rather zip this but this saves 15% performance
+        let allCorners = [([$0.up, $0.right], $0.up.right), ([$0.right, $0.down], $0.right.down), ([$0.down, $0.left], $0.down.left), ([$0.left, $0.up], $0.left.up)]
         return allCorners.filter { directions, diagonal in
             return switch directions.filter(region.insideLocations.contains).count {
             case 0: true
@@ -46,14 +45,12 @@ for region in regions {
             }
         }.count
     }.reduce(0, +)
-    result2 += region.area * corners
-}
+}.reduce(0, +)
 
 struct Region: Hashable {
     var type: Character
-    var outsideChecks: [Location] = []
     var insideLocations: Set<Location>
-    var perimeter: Int { outsideChecks.count }
+    var perimeter: Int = 0
     var area: Int { insideLocations.count }
 }
 
