@@ -3,10 +3,9 @@ import Foundation
 import AsyncHTTPClient // swift-server/async-http-client
 
 let day = CommandLine.arguments[safe: 1] ?? { fatalError("First argument should be day") }()
-let year = CommandLine.arguments[safe: 2] ?? String(Calendar.current.component(.year, from: Calendar.current.date(byAdding: .month, value: -1, to: Date())!))
+let year = CommandLine.arguments[safe: 2] ?? String(Calendar.current.component(.year, from: Calendar.current.date(byAdding: .month, value: -10, to: Date())!))
 let dayString = day.count == 1 ? "0" + day : day
 let inputFile = "\(year)/\(dayString).input"
-let swiftFile = "\(year)/\(dayString).swift"
 
 let token = ProcessInfo.processInfo.environment["AoC_token"] ?? { fatalError("set token in env as AoC_token") }()
 guard token.count > 0 else { fatalError("missing token") }
@@ -25,8 +24,12 @@ if result.totalBytes == nil {
     fatalError(contents)
 }
 
-if !fm.fileExists(atPath: swiftFile) {
-    try fm.copyItem(atPath: "template.swift", toPath: swiftFile)
+let templates = fm.enumerator(atPath: ".")?.compactMap { $0 as? String } .filter { $0.hasPrefix("template.") }
+for template in templates ?? [] {
+    let scriptFile = template.replacing("template", with: "\(year)/\(dayString)")
+    if !fm.fileExists(atPath: scriptFile) {
+        try fm.copyItem(atPath: template, toPath: scriptFile)
+    }
 }
 
 #if os(Linux)
@@ -44,16 +47,19 @@ try openBrowser.run()
 print("Opening Editor")
 let openEditor = Process()
 openEditor.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-openEditor.arguments = [openCommand, swiftFile]
-try openEditor.run()
+openEditor.arguments = ["gnome-terminal", "--", "zsh", "-c", "nvim \(year)/\(dayString).*"]
+try? openEditor.run()
 
-print("Running `watch \(swiftFile)`") // See https://github.com/Amzd/dotfiles/blob/main/.zshrc.d/aliases.zsh or the macos branch
-let watch = Process()
-watch.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-watch.arguments = ["zsh", "-c", "watch \(swiftFile)"]
-signal(SIGINT, { signal in watch.terminate() })
-try watch.run()
-watch.waitUntilExit()
+let scripts = fm.enumerator(atPath: year)?.compactMap { $0 as? String } .filter { $0.contains(dayString + ".") && !$0.hasSuffix(".input") }
+for script in scripts ?? [] {
+    print("Running `watch \(year)/\(script)`") // See https://github.com/Amzd/dotfiles/blob/main/.zshrc.d/aliases.zsh or the macos branch
+    let watch = Process()
+    watch.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+    watch.arguments = ["zsh", "-c", "watch \(year)/\(script)"]
+    // signal(SIGINT, { signal in watch.terminate() })
+    // try watch.run()
+    // watch.waitUntilExit()
+}
 
 extension Collection {
     // Returns the element at the specified index if it is within bounds, otherwise nil.

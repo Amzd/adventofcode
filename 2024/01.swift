@@ -1,10 +1,11 @@
-#!/usr/bin/env swift-sh
+#!/usr/bin/env swift
 
 import Foundation
 import RegexBuilder
 import Testing
 
-let input = try! String(contentsOfFile: "1.in")
+let start = Date()
+var input = try String(contentsOfFile: #file.replacingOccurrences(of: ".swift", with: ".input"))
 
 var lhs: [Int] = []
 var rhs: [Int] = []
@@ -39,3 +40,4 @@ for lhs in lhs {
 }
 
 print("part2", similarity)
+print("elapsed time in seconds:", -start.timeIntervalSinceNow)
