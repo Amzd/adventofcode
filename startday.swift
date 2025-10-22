@@ -7,21 +7,23 @@ let year = CommandLine.arguments[safe: 2] ?? String(Calendar.current.component(.
 let dayString = day.count == 1 ? "0" + day : day
 let inputFile = "\(year)/\(dayString).input"
 
-let token = ProcessInfo.processInfo.environment["AoC_token"] ?? { fatalError("set token in env as AoC_token") }()
-guard token.count > 0 else { fatalError("missing token") }
-
-print("Downloading input file")
-var request = try HTTPClient.Request(url: "https://adventofcode.com/\(year)/day/\(day)/input")
-request.headers.add(name: "Cookie", value: "session=\(token)")
-let delegate = try FileDownloadDelegate(path: inputFile)
-let result = try await HTTPClient.shared.execute(request: request, delegate: delegate).get()
-
-let contents = try String(contentsOfFile: inputFile)
 let fm = FileManager.default
-if result.totalBytes == nil {
-    try? fm.removeItem(atPath: inputFile)
-    print("Failed to download file")
-    fatalError(contents)
+if !fm.fileExists(atPath: inputFile) {
+    let token = ProcessInfo.processInfo.environment["AoC_token"] ?? { fatalError("set token in env as AoC_token") }()
+    guard token.count > 0 else { fatalError("missing token") }
+
+    print("Downloading input file")
+    var request = try HTTPClient.Request(url: "https://adventofcode.com/\(year)/day/\(day)/input")
+    request.headers.add(name: "Cookie", value: "session=\(token)")
+    let delegate = try FileDownloadDelegate(path: inputFile)
+    let result = try await HTTPClient.shared.execute(request: request, delegate: delegate).get()
+
+    let contents = try String(contentsOfFile: inputFile)
+    if result.totalBytes == nil {
+        try? fm.removeItem(atPath: inputFile)
+        print("Failed to download file")
+        fatalError(contents)
+    }
 }
 
 let templates = fm.enumerator(atPath: ".")?.compactMap { $0 as? String } .filter { $0.hasPrefix("template.") }
